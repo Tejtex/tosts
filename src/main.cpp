@@ -22,7 +22,7 @@ bool parse(int argc, char* argv[], Args& a) {
             has_o = true; a.out = v[++i];
         }
         else if (v[i][0] != '-') break;
-        else return false;
+        else return std::cerr << "Unknown command: " + v[i] + "\n", false;
         ++i;
     }
     a.cmd.clear();
