@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
 
     std::sort(stats.ok.begin(), stats.ok.end());
     std::sort(stats.wa.begin(), stats.wa.end());
+    std::sort(stats.re.begin(), stats.re.end());
     for (auto ok : stats.ok)
     {
         std::cout << ok << " OK\n";
@@ -86,6 +87,10 @@ int main(int argc, char *argv[])
     for (auto wa : stats.wa)
     {
         std::cout << wa << " WA\n";
+    }
+    for (auto re : stats.re)
+    {
+        std::cout << re << " RE\n";
     }
     return 0;
 }

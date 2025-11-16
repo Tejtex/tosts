@@ -68,6 +68,10 @@ void runner(const std::vector<std::string> &command, const std::vector<std::stri
                     else
                         stats.wa.push_back(test);
                 }
+                else
+                {
+                    stats.re.push_back(test);
+                }
             }
 
             currentCount--;
