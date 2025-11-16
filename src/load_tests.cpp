@@ -29,7 +29,7 @@ bool load_tests(std::string in_dir, std::string out_dir, Stats &stats, std::vect
         if (entry.is_regular_file())
         {
             std::string name = entry.path().stem().string();
-            if (!name.empty())
+            if (!name.empty() && entry.path().extension() == ".in")
             {
                 if (fs::exists(fs::path(out_dir) / (name + ".out")))
                     tests.push_back(std::move(name));
