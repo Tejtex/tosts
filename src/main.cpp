@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "load_tests.cpp"
 
 struct Args {
     std::string in, out, cmd;
@@ -40,6 +41,13 @@ bool parse(int argc, char* argv[], Args& a) {
 int main(int argc, char* argv[]) {
     Args a;
     if (!parse(argc, argv, a)) return 1;
-    std::cerr << a.in << '\n' << a.out << '\n' << a.cmd << '\n';
+
+    Stats stats;
+    std::vector<std::string> tests;
+
+    if(!load_tests(a.in, a.out, stats, tests)) return 1;
+    for(auto s : tests) std::cerr << s << "\n";
+    std::cerr << "\n";
+    for(auto s : stats.skipped) std::cerr << s << "\n";
     return 0;
 }

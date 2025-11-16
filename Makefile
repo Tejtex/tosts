@@ -5,7 +5,7 @@ CXX := g++
 CXXFLAGS := -std=c++23 -Wall -Wextra -O2
 
 tosts: $(SOURCES)
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) ./src/main.cpp -o $@
 
 clean:
 	rm -f tosts
