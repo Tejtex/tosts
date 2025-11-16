@@ -112,7 +112,6 @@ std::pair<std::string, int> run(const std::vector<std::string> &command, std::st
 #include <signal.h>
 #include <string>
 #include <vector>
-#include <cstring>
 
 std::pair<std::string, int> run(const std::vector<std::string> &command,
                                 std::string &input,

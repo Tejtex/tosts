@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "load_tests.cpp"
 #include "runner.cpp"
 #include "utils.cpp"
@@ -65,21 +66,26 @@ int main(int argc, char *argv[])
 
     if (!load_tests(a.in, a.out, stats, tests))
         return 1;
-    std::cerr << "Tests:\n";
+    std::cout << "Tests:\n";
     for (auto s : tests)
-        std::cerr << s << "\n";
-    std::cerr << "Skipped\n";
+        std::cout << s << "\n";
+    if(tests.empty()) std::cout << "None\n";
+    std::cout << "Skipped:\n";
     for (auto s : stats.skipped)
-        std::cerr << s << "\n";
+        std::cout << s << "\n";
+    if(stats.skipped.empty()) std::cout << "None\n";
 
     runner(a.cmd, tests, stats, 1000, 1024 * 1024, a.in, a.out);
-    for (auto wa : stats.wa)
-    {
-        std::cerr << wa << " WA\n";
-    }
+
+    std::sort(stats.ok.begin(), stats.ok.end());
+    std::sort(stats.wa.begin(), stats.wa.end());
     for (auto ok : stats.ok)
     {
-        std::cerr << ok << " OK\n";
+        std::cout << ok << " OK\n";
+    }
+    for (auto wa : stats.wa)
+    {
+        std::cout << wa << " WA\n";
     }
     return 0;
 }

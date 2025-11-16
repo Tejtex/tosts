@@ -31,7 +31,7 @@ bool load_tests(std::string in_dir, std::string out_dir, Stats &stats, std::vect
                     tests.push_back(std::move(name));
                 else
                 {
-                    stats.skipped.push_back(name);
+                    stats.skipped.push_back(std::move(name));
                 }
             }
         }
