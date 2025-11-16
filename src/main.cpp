@@ -2,11 +2,13 @@
 #include <string>
 #include <vector>
 #include "load_tests.cpp"
-#include "process.cpp"
+#include "runner.cpp"
+#include "utils.cpp"
 
 struct Args
 {
-    std::string in, out, cmd;
+    std::string in, out;
+    std::vector<std::string> cmd;
 };
 
 bool parse(int argc, char *argv[], Args &a)
@@ -40,13 +42,8 @@ bool parse(int argc, char *argv[], Args &a)
             return std::cerr << "Unknown command: " + v[i] + "\n", false;
         ++i;
     }
-    a.cmd.clear();
     for (; i < v.size(); ++i)
-    {
-        if (!a.cmd.empty())
-            a.cmd += " ";
-        a.cmd += v[i];
-    }
+        a.cmd.push_back(v[i]);
 
     if (!has_i)
         return std::cerr << "No input directory(-i)\n", false;
@@ -74,5 +71,15 @@ int main(int argc, char *argv[])
     std::cerr << "Skipped\n";
     for (auto s : stats.skipped)
         std::cerr << s << "\n";
+
+    runner(a.cmd, tests, stats, 1000, 1024 * 1024, a.in, a.out);
+    for (auto wa : stats.wa)
+    {
+        std::cerr << wa << " WA\n";
+    }
+    for (auto ok : stats.ok)
+    {
+        std::cerr << ok << " OK\n";
+    }
     return 0;
 }

@@ -3,13 +3,9 @@
 #include <vector>
 #include <filesystem>
 #include <algorithm>
+#include "stats.cpp"
 
 namespace fs = std::filesystem;
-
-struct Stats
-{
-    std::vector<std::string> skipped;
-};
 
 bool load_tests(std::string in_dir, std::string out_dir, Stats &stats, std::vector<std::string> &tests)
 {

@@ -1,9 +1,6 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
 
 // run is a cross-platform function for creating a process, getting it's stdout, and limiting the time and memory. memory should be in Bytes and timout in miliseconds
 #ifdef _WIN32
