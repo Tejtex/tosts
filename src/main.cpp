@@ -12,11 +12,13 @@ bool parse(int argc, char* argv[], Args& a) {
     size_t i = 0;
     while (i < v.size()) {
         if (v[i] == "-i") {
-            if (has_i || i + 1 >= v.size()) return std::cerr << "No input directory given after -i\n", false;
+            if (i + 1 >= v.size()) return std::cerr << "No input directory given after -i\n", false;
+            if (has_i) return std::cerr << "2 -i flags\n", false;
             has_i = true; a.in = v[++i];
         }
         else if (v[i] == "-o") {
-            if (has_o || i + 1 >= v.size()) return std::cerr << "No output directory given after -o\n", false;
+            if (i + 1 >= v.size()) return std::cerr << "No output directory given after -o\n", false;
+            if (has_o) return std::cerr << "2 -o flags\n", false;
             has_o = true; a.out = v[++i];
         }
         else if (v[i][0] != '-') break;
