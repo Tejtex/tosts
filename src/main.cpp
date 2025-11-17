@@ -146,6 +146,8 @@ int main(int argc, char *argv[])
 
     std::sort(stats.ok.begin(), stats.ok.end());
     std::sort(stats.wa.begin(), stats.wa.end());
+    std::sort(stats.wa.begin(), stats.tle.end());
+    std::sort(stats.wa.begin(), stats.mle.end());
     std::sort(stats.re.begin(), stats.re.end());
     for (auto &wa : stats.wa)
         std::cout << RED << wa << " WA" << RESET << "\n";
