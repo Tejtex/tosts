@@ -38,7 +38,7 @@ Optional options:
   -m, --memory <memory>     The memory limit for each test(in MB)
 
 Positional arguments:
-  COMMAND...                One or more commands to execute (e.g. test names)
+  COMMAND...                Command to execute
 
 Optional arguments:
   -h, --help                Show this help message and exit
