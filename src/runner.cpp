@@ -39,6 +39,7 @@ void runner(const std::vector<std::string> &command, const std::vector<std::stri
     bool done = false;
 
     std::mutex statsMutex;
+    auto start = std::chrono::steady_clock::now();
 
     int numdone = 0;
 
@@ -74,11 +75,15 @@ queueCV.notify_all();
             {
                 std::lock_guard<std::mutex> lg(statsMutex);
                 numdone ++;
-                print_progress(numdone, tests.size());
+                auto end = std::chrono::steady_clock::now();
+                print_progress(numdone, tests.size(),std::chrono::duration_cast<std::chrono::milliseconds>( end - start ), stats);
 
                 if (res.second == 0) {
-                    if (res.first == out)
+                    if (res.first == out) {
                         stats.ok.push_back(test);
+                        
+
+                    }
                     else
                         stats.wa.push_back(test);
                 } else if(res.second == 1) {

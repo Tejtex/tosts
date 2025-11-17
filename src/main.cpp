@@ -6,12 +6,6 @@
 #include "runner.cpp"
 #include "utils.cpp"
 
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define CYAN    "\033[36m"
-
 
 
 
@@ -146,9 +140,14 @@ int main(int argc, char *argv[])
 
     std::sort(stats.ok.begin(), stats.ok.end());
     std::sort(stats.wa.begin(), stats.wa.end());
-    std::sort(stats.wa.begin(), stats.tle.end());
-    std::sort(stats.wa.begin(), stats.mle.end());
+    std::sort(stats.tle.begin(), stats.tle.end());
+    std::sort(stats.mle.begin(), stats.mle.end());
     std::sort(stats.re.begin(), stats.re.end());
+    std::cout <<"Results: " 
+            << GREEN << stats.ok.size() << " correct; " 
+            << RED << stats.wa.size() << " wrong; " 
+            << YELLOW << stats.re.size() << " runtime errors; " 
+            << CYAN << stats.tle.size() << " timeouts; " << stats.mle.size() << " memory limits;\n";
     for (auto &wa : stats.wa)
         std::cout << RED << wa << " WA" << RESET << "\n";
     for (auto &tle : stats.tle)
