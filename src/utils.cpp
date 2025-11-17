@@ -2,6 +2,7 @@
 #include <string>
 #include <sstream>
 #include <stdlib.h>
+#include <iostream>
 
 #ifndef UTILS
 #define UTILS

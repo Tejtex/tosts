@@ -1,5 +1,4 @@
 #include <vector>
-#include <atomic>
 #include <mutex>
 #include <condition_variable>
 #include <thread>
@@ -82,6 +81,10 @@ queueCV.notify_all();
                         stats.ok.push_back(test);
                     else
                         stats.wa.push_back(test);
+                } else if(res.second == 1) {
+                    stats.tle.push_back(test);
+                } else if(res.second == 2) {
+                    stats.mle.push_back(test);
                 } else {
                     stats.re.push_back(test);
                 }
