@@ -12,6 +12,28 @@ struct Args
     std::vector<std::string> cmd;
 };
 
+void print_help() {
+    std::cout <<
+R"(tosts — a simple tester for competitive programming
+
+Usage:
+  tosts -i <indir> -o <outdir> COMMAND...
+
+Required options:
+  -i, --input <indir>       Directory containing input test files
+  -o, --output <outdir>     Directory to write output or expected results
+
+Positional arguments:
+  COMMAND...                One or more commands to execute (e.g. test names)
+
+Optional arguments:
+  -h, --help                Show this help message and exit
+
+Examples:
+  tosts -i tests/in -o tests/out ./a.out
+  tosts -i data -o results python3 program.py
+)";
+}
 bool parse(int argc, char *argv[], Args &a)
 {
     std::vector<std::string> v(argv + 1, argv + argc);
@@ -19,7 +41,11 @@ bool parse(int argc, char *argv[], Args &a)
     size_t i = 0;
     while (i < v.size())
     {
-        if (v[i] == "-i")
+        if (v[i] == "-h" or v[i] == "--help") {
+            print_help();
+            exit(0);
+        }
+        else if (v[i] == "-i" or v[i] == "--input")
         {
             if (i + 1 >= v.size())
                 return std::cerr << "No input directory given after -i\n", false;
@@ -28,7 +54,7 @@ bool parse(int argc, char *argv[], Args &a)
             has_i = true;
             a.in = v[++i];
         }
-        else if (v[i] == "-o")
+        else if (v[i] == "-o" or v[i] == "--output")
         {
             if (i + 1 >= v.size())
                 return std::cerr << "No output directory given after -o\n", false;
