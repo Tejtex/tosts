@@ -5,8 +5,11 @@
 #include <thread>
 #include <filesystem>
 #include <fstream>
+#include <queue>
+#include <iostream>
 #include "stats.cpp"
 #include "process.cpp"
+#include "utils.cpp"
 
 namespace fs = std::filesystem;
 
@@ -27,60 +30,91 @@ bool readTest(const std::string &path, std::string &outContent)
 
 void runner(const std::vector<std::string> &command, const std::vector<std::string> &tests, Stats &stats, int timeout, int memory_limit, std::string ind, std::string outd)
 {
-    const int maxCount = 100;
+    const size_t NUM_WORKERS = 32;
 
-    std::atomic<int> currentCount{0};
-    std::mutex cv_mtx;
-    std::mutex stats_mtx;
-    std::condition_variable cv;
-    std::vector<std::thread> threads;
+    std::queue<std::string> taskQueue;
+    for (auto& t : tests) taskQueue.push(t);
 
-    for (std::string test : tests)
-    {
+    std::mutex queueMutex;
+    std::condition_variable queueCV;
+    bool done = false;
 
-        std::unique_lock<std::mutex>
-            lock(cv_mtx);
-        cv.wait(lock, [&]()
-                { return currentCount < maxCount; });
-        currentCount++;
-        lock.unlock();
+    std::mutex statsMutex;
 
-        threads.emplace_back([&, test]()
-                             {
-            std::string in, out; 
-            if (!readTest((fs::path(ind) / (test + ".in")).string(), in) || !readTest((fs::path(outd)/(test + ".out")).string(), out))
+    int numdone = 0;
+
+    auto worker = [&]() {
+        while (true) {
+            std::string test;
             {
-                std::lock_guard<std::mutex> lg(stats_mtx);
-                stats.skipped.push_back(test);
-                currentCount--;
-                cv.notify_one();
-                return;
+                std::unique_lock<std::mutex> lock(queueMutex);
+                queueCV.wait(lock, [&] {
+                    return !taskQueue.empty() || done;
+                });
+
+                if (done && taskQueue.empty())
+                    return;
+
+                test = taskQueue.front();
+                taskQueue.pop();
+queueCV.notify_all();
             }
 
-            std::pair<std::string, int> res = run(command, in, timeout, memory_limit);
+            std::string in, out;
+
+            if (!readTest((fs::path(ind) / (test + ".in")).string(), in) ||
+                !readTest((fs::path(outd) / (test + ".out")).string(), out))
+            {
+                std::lock_guard<std::mutex> lg(statsMutex);
+                stats.skipped.push_back(test);
+                continue;
+            }
+
+            auto res = run(command, in, timeout, memory_limit);
 
             {
-                std::lock_guard<std::mutex> lg(stats_mtx);
-                if (res.second == 0)
-                {
+                std::lock_guard<std::mutex> lg(statsMutex);
+                numdone ++;
+                print_progress(numdone, tests.size());
+
+                if (res.second == 0) {
                     if (res.first == out)
                         stats.ok.push_back(test);
                     else
                         stats.wa.push_back(test);
-                }
-                else
-                {
+                } else {
                     stats.re.push_back(test);
                 }
             }
+        }
+    };
 
-            currentCount--;
-            cv.notify_one(); });
-    }
+    std::vector<std::thread> workers;
+    workers.reserve(NUM_WORKERS);
 
-    for (auto &t : threads)
+    for (size_t i = 0; i < NUM_WORKERS; ++i)
+        workers.emplace_back(worker);
+
     {
-        if (t.joinable())
-            t.join();
+        std::lock_guard<std::mutex> lock(queueMutex);
+        done = false;
     }
+    queueCV.notify_all();
+
+    {
+        std::unique_lock<std::mutex> lock(queueMutex);
+        while (!taskQueue.empty())
+            queueCV.wait(lock);
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(queueMutex);
+        done = true;
+    }
+    queueCV.notify_all();
+
+    for (auto& w : workers)
+        w.join();
+
+    std::cout << std::endl;
 }

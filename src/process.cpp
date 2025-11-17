@@ -115,7 +115,7 @@ std::pair<std::string, int> run(const std::vector<std::string> &command, std::st
 
 std::pair<std::string, int> run(const std::vector<std::string> &command,
                                 std::string &input,
-                                int timeout, int memory_limit_kb)
+                                int timeout, int memory_limit)
 {
     int stdin_pipe[2];
     int stdout_pipe[2];
@@ -142,8 +142,8 @@ std::pair<std::string, int> run(const std::vector<std::string> &command,
 
         // Set memory limit
         rlimit mem_limit{};
-        mem_limit.rlim_cur = memory_limit_kb * 1024;
-        mem_limit.rlim_max = memory_limit_kb * 1024;
+        mem_limit.rlim_cur = memory_limit;
+        mem_limit.rlim_max = memory_limit;
         setrlimit(RLIMIT_AS, &mem_limit);
 
         // Prepare args

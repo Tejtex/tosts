@@ -6,9 +6,19 @@
 #include "runner.cpp"
 #include "utils.cpp"
 
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define CYAN    "\033[36m"
+
+
+
+
 struct Args
 {
     std::string in, out;
+    float time;
     std::vector<std::string> cmd;
 };
 
@@ -17,11 +27,12 @@ void print_help() {
 R"(tosts — a simple tester for competitive programming
 
 Usage:
-  tosts -i <indir> -o <outdir> COMMAND...
+  tosts -i <indir> -o <outdir> [-t <timeout>] COMMAND...
 
 Required options:
   -i, --input <indir>       Directory containing input test files
   -o, --output <outdir>     Directory to write output or expected results
+  -t, --timeout <timeout>   The timeout for each test
 
 Positional arguments:
   COMMAND...                One or more commands to execute (e.g. test names)
@@ -37,13 +48,21 @@ Examples:
 bool parse(int argc, char *argv[], Args &a)
 {
     std::vector<std::string> v(argv + 1, argv + argc);
-    bool has_i = false, has_o = false;
+    bool has_i = false, has_o = false, has_t = false;
     size_t i = 0;
     while (i < v.size())
     {
         if (v[i] == "-h" or v[i] == "--help") {
             print_help();
             exit(0);
+        }
+        else if (v[i] == "-t" or v[i] == "--timeout") {
+            if (i + 1 >= v.size())
+                return std::cerr << "No timeout given after -t\n", false;
+            if (has_t)
+                return std::cerr << "2 -t flags\n", false;
+            has_t = true;
+            a.time = std::stof(v[++i]);
         }
         else if (v[i] == "-i" or v[i] == "--input")
         {
@@ -92,31 +111,16 @@ int main(int argc, char *argv[])
 
     if (!load_tests(a.in, a.out, stats, tests))
         return 1;
-    std::cout << "Tests:\n";
-    for (auto s : tests)
-        std::cout << s << "\n";
-    if(tests.empty()) std::cout << "None\n";
-    std::cout << "Skipped:\n";
-    for (auto s : stats.skipped)
-        std::cout << s << "\n";
-    if(stats.skipped.empty()) std::cout << "None\n";
 
-    runner(a.cmd, tests, stats, 1000, 1024 * 1024, a.in, a.out);
+    std::cout << "Found " << tests.size() << " tests; skipped " << stats.skipped.size() << " tests\n";
+    runner(a.cmd, tests, stats, (a.time * 1000), 1, a.in, a.out);
 
     std::sort(stats.ok.begin(), stats.ok.end());
     std::sort(stats.wa.begin(), stats.wa.end());
     std::sort(stats.re.begin(), stats.re.end());
-    for (auto ok : stats.ok)
-    {
-        std::cout << ok << " OK\n";
-    }
-    for (auto wa : stats.wa)
-    {
-        std::cout << wa << " WA\n";
-    }
-    for (auto re : stats.re)
-    {
-        std::cout << re << " RE\n";
-    }
+    for (auto &wa : stats.wa)
+        std::cout << RED << wa << " WA" << RESET << "\n";
+    for (auto &re : stats.re)
+        std::cout << YELLOW << re << " RE" << RESET << "\n";
     return 0;
 }
